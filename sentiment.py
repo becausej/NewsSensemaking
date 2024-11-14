@@ -16,7 +16,7 @@ def classify_text(text):
                 "v2_model": {"content_categories_version": language_v1.ClassificationModelOptions.V2Model.ContentCategoriesVersion.V2}
             },
         }
-    )
+  )
   
   sorted_categories = sorted(
         response.categories,
@@ -29,6 +29,7 @@ def classify_text(text):
         print(f"Category name: {category.name}")
         print(f"Confidence: {round(category.confidence, 3)}")
 
+# Analyzes sentiment by document+sentence
 def analyze_sentiment(text) -> None:
     client = language_v2.LanguageServiceClient()
     document = {"content": text, "type_": language_v2.Document.Type.PLAIN_TEXT}
@@ -50,11 +51,10 @@ def analyze_sentiment(text) -> None:
         print(f"Sentiment score: {round(sentence.sentiment.score, 5)}")
         print(f"Sentiment magnitude: {round(sentence.sentiment.magnitude, 5)}\n")
 
+# Analyze sentiment for each entity
 def analyze_entity_sentiment(text):
     client = language_v1.LanguageServiceClient()
-    type_ = language_v1.types.Document.Type.PLAIN_TEXT
-
-    document = {"content": text, "type_": type_}
+    document = {"content": text, "type_": language_v1.types.Document.Type.PLAIN_TEXT}
     encoding_type = language_v1.EncodingType.UTF8
 
     response = client.analyze_entity_sentiment(
@@ -81,28 +81,33 @@ def analyze_entity_sentiment(text):
     print("\nMost Extreme Sentiments")
     print(top_sentiment_entities)
 
+# simplify same name entities
 def help_combine_entities(all_entities):
+    count = 'count'
+    sentiment_score = 'sentiment_score'
+    sentiment_magnitude = 'sentiment_magnitude'
+    metadata ='metadata'
+
     combined_entities = defaultdict(lambda: {
-        'sentiment_score': 0,
-        'sentiment_magnitude': 0,
-        'metadata': [],
-        'count': 0
+        sentiment_score: 0,
+        sentiment_magnitude: 0,
+        metadata: [],
+        count: 0
     })
 
     for entity in all_entities:
         key = entity.name.lower()
-        combined_entities[key]['sentiment_score'] += entity.sentiment.score
-        combined_entities[key]['sentiment_magnitude'] += entity.sentiment.magnitude
-        combined_entities[key]['count'] += 1
-        combined_entities[key]['metadata'] += entity.metadata
+        combined_entities[key][sentiment_score] += entity.sentiment.score
+        combined_entities[key][sentiment_magnitude] += entity.sentiment.magnitude
+        combined_entities[key][count] += 1
+        combined_entities[key][metadata] += entity.metadata
 
-    entity_averages = {}
     entity_averages = {}
     for key, value in combined_entities.items():
         entity_averages[key] = {
-            'sentiment_score': value['sentiment_score'] / value['count'],
-            'sentiment_magnitude': value['sentiment_magnitude'] / value['count'],
-            'metadata': value['metadata']  
+            sentiment_score: value[sentiment_score] / value[count],
+            sentiment_magnitude: value[sentiment_magnitude] / value[count],
+            metadata: value[metadata]  
     }
     return entity_averages
 
@@ -117,6 +122,9 @@ url = "https://www.newyorker.com/magazine/dispatches/what-does-it-mean-that-dona
 article = newspaper.article(url)
 text = article.text
 
+print("CLASSIFY ARTICLE CONTENT")
 classify_text(text)
+print("\nHIGHEST SENTIMENT SENTENCES")
 analyze_sentiment(text)
+print("\nENTITY-SENTIMENT")
 analyze_entity_sentiment(text)
