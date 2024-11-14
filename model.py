@@ -1,12 +1,9 @@
 import numpy as np
-import pandas as pd
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from transform_dataset import apply_features
-
-# Assuming X_train, y_train, X_val, y_val, X_test, y_test exist
 
 # Function to evaluate model performance on test data
 def evaluate_model(model, X_val, y_val, X_test, y_test):
@@ -67,6 +64,7 @@ with open('glove.6B.100d.txt', 'r') as f:
         word = values[0]
         vector = np.asarray(values[1:], "float32")
         glove_embeddings[word] = vector
+
 # Test models on a new statement
 statement = "THEY ARE EATING THE DOGS, THEY ARE EATING THE CATS IN SPRINGFIELD"
 statement_features = apply_features([statement], glove_embeddings)
