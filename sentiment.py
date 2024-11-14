@@ -111,6 +111,25 @@ def help_combine_entities(all_entities):
     }
     return entity_averages
 
+# sensitive topics
+def analyze_sensitivity(text) -> None:
+    client = language_v2.LanguageServiceClient()
+    document = {"content": text, "type_": language_v2.Document.Type.PLAIN_TEXT}
+    encoding_type = language_v2.EncodingType.UTF8
+
+    response = client.moderate_text(
+        request={"document": document}
+    )
+
+    sorted_categories = sorted(
+        response.moderation_categories, 
+        key=lambda x: x.confidence, 
+        reverse=True
+    )
+    extreme_categories = sorted_categories[:5]
+
+    print(extreme_categories)
+    
 # url = "https://www.nytimes.com/2024/11/03/us/politics/harris-trump-times-siena-poll.html"
 # url = "https://www.infowars.com/posts/roger-stone-the-democrats-are-playing-possum-planning-to-strike-back"
 # url = "https://www.infowars.com/posts/your-kids-are-already-communist-and-college-will-make-it-worse"
@@ -128,3 +147,5 @@ print("\nHIGHEST SENTIMENT SENTENCES")
 analyze_sentiment(text)
 print("\nENTITY-SENTIMENT")
 analyze_entity_sentiment(text)
+print("\nSENSITIVE TOPICS")
+analyze_sensitivity(text)
