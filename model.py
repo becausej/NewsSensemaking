@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import RandomForestRegressor
 from xgboost import XGBRegressor
@@ -21,13 +22,20 @@ def evaluate_model(model, X_val, y_val, X_test, y_test):
     
     return y_test_pred
 
-# fetech, train, val, test data from the dataset folder
-X_train = np.load('dataset/train_features.npy')
-y_train = np.load('dataset/train_label.npy')
-X_val = np.load('dataset/validation_features.npy')
-y_val = np.load('dataset/validation_label.npy')
-X_test = np.load('dataset/test_features.npy')
-y_test = np.load('dataset/test_label.npy')
+# fetech, train, val, test data from the dataset folder each is in a csv file where the columns are features except lable whihc is the last column
+train_data = pd.read_csv('dataset/train_features.csv')
+val_data = pd.read_csv('dataset/validation_features.csv')
+test_data = pd.read_csv('dataset/test_features.csv')
+
+# Split data into features and labels
+X_train = train_data.drop('label', axis=1).values
+y_train = train_data['label'].values
+
+X_val = val_data.drop('label', axis=1).values
+y_val = val_data['label'].values
+
+X_test = test_data.drop('label', axis=1).values
+y_test = test_data['label'].values
 
 # replace NaN values with 0 in X
 X_train = np.nan_to_num(X_train)
@@ -67,7 +75,7 @@ with open('glove.6B.100d.txt', 'r') as f:
 
 # Test models on a new statement
 statement = "THEY ARE EATING THE DOGS, THEY ARE EATING THE CATS IN SPRINGFIELD"
-statement_features = apply_features([statement], glove_embeddings)
+statement_features, _ = apply_features([statement], glove_embeddings)
 statement_features = np.nan_to_num(statement_features)
 # Predict using all models
 ridge_pred = ridge.predict(statement_features)
