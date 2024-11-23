@@ -1,5 +1,12 @@
 # NewsSensemaking
 
+## Chrome Extension
+* Start the Flask server (server.py)
+* Open Chrome -> Extensions -> Manage Extensions
+* Turn on Developer Mode
+* Click "Load Upacked" and select the "Extension" folder
+* It should be running
+
 ## Google Cloud API
 This also has all the info: [Quickstart](https://cloud.google.com/natural-language/docs/setup)
 ### Google Cloud Project
