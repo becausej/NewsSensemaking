@@ -53,6 +53,19 @@ def analyze_sentiment(text) -> None:
         print(f"Sentiment score: {round(sentence.sentiment.score, 5)}")
         print(f"Sentiment magnitude: {round(sentence.sentiment.magnitude, 5)}\n")
 
+# identiifes relevant entities, still not sure it's useful
+def find_entities(text) -> None:
+    client = language_v2.LanguageServiceClient()
+    document = {"content": text, "type_": language_v2.Document.Type.PLAIN_TEXT}
+    encoding_type = language_v2.EncodingType.UTF8
+
+    response = client.analyze_entities(
+        request={"document": document, "encoding_type": encoding_type}
+    )
+
+    for entity in response.entities:
+        print(f"Representative name for the entity: {entity.name}")
+
 # Analyze sentiment for each entity
 def analyze_entity_sentiment(text):
     client = language_v1.LanguageServiceClient()
@@ -153,6 +166,7 @@ print("\nENTITY-SENTIMENT")
 analyze_entity_sentiment(text)
 print("\nSENSITIVE TOPICS")
 analyze_sensitivity(text)
+find_entities(text)
 
 # import gdelt
 

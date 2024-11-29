@@ -1,8 +1,8 @@
-function highlightFirstWord() {
+function highlightMaxSentimentSentence() {
   console.log("start");
   const current_url = window.location.toString();
 
-  fetch('http://127.0.0.1:5000/process_text', {
+  fetch('http://127.0.0.1:5000/get_max_sentence', {
       method: 'POST', 
       headers: {
           'Content-Type': 'application/json',
@@ -14,7 +14,7 @@ function highlightFirstWord() {
       console.log("sentence", data.max_sentence);
       sent = data.max_sentence;
 
-      temp = bfsHTML(document, sent);
+      temp = findElement(document, sent);
       if (!temp) {
         console.log("failed");
         return;
@@ -47,4 +47,4 @@ function findElement(root, value) {
 }
 
 // Run the function when the page has loaded
-highlightFirstWord();
+highlightMaxSentimentSentence();
