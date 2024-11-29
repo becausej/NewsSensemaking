@@ -1,41 +1,48 @@
-
 function highlightFirstWord() {
-  const mainContent = document.querySelector('.mw-body');
-  
-  if (!mainContent) return; 
-  
-  const bodyText = mainContent.innerText;
-
-  if (!bodyText) return;
-
-  fetch('http://127.0.0.1:5000/get_data')
-    .then(response => response.json())
-    .then(data => {
-      console.log("Data from Flask:", data.message);
-    })
-    .catch(error => console.error("Error:", error));
+  console.log("start");
+  const current_url = window.location.toString();
 
   fetch('http://127.0.0.1:5000/process_text', {
       method: 'POST', 
       headers: {
           'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ text: bodyText })
+      body: JSON.stringify({ url: current_url })
   })
   .then(response => response.json())
   .then(data => {
-      // TODO
+      console.log("sentence", data.max_sentence);
+      sent = data.max_sentence;
+
+      temp = bfsHTML(document, sent);
+      if (!temp) {
+        console.log("failed");
+        return;
+      }
+
+      const highlightedWord = `<span style="background-color: yellow;">${sent}</span>`;
+      temp.innerHTML = temp.innerHTML.replace(sent, highlightedWord)
+      console.log("should've worked")
   })
   .catch(error => console.error('Error:', error));
+}
 
-  const firstWordMatch = bodyText.match(/\b\w+\b/); 
+// bfs searches html for correct element node
+function findElement(root, value) {
+  const queue = [root];
 
-  if (firstWordMatch) {
-      const firstWord = firstWordMatch[0];
-
-      const highlightedWord = `<span style="background-color: yellow;">${firstWord}</span>`;
-
-      mainContent.innerHTML = mainContent.innerHTML.replace(firstWord, highlightedWord);
+  while (queue.length > 0) {
+      const currentNode = queue.shift();
+      
+      if (currentNode.nodeType === Node.ELEMENT_NODE) {
+        if (currentNode.innerText.includes(value)) {
+            console.log("Found text in element:", currentNode);
+            return currentNode;
+        }
+      }
+      for (const child of currentNode.children) {
+          queue.push(child);
+      }
   }
 }
 

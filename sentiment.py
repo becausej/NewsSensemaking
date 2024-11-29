@@ -38,6 +38,8 @@ def analyze_sentiment(text) -> None:
     response = client.analyze_sentiment(
         request={"document": document, "encoding_type": encoding_type}
     )
+
+    print(f"Document sentiment score: {response.document_sentiment.score}\n")
     
     sorted_sentiments = sorted(
         response.sentences,
@@ -81,7 +83,7 @@ def analyze_entity_sentiment(text):
     print("\nMost Extreme Sentiments")
     print(top_sentiment_entities)
 
-# simplify same name entities
+# simplify same name entities #TODO consider cross-referencing with just entity analysis to filter out regular words
 def help_combine_entities(all_entities):
     count = 'count'
     sentiment_score = 'sentiment_score'
@@ -135,8 +137,10 @@ def analyze_sensitivity(text) -> None:
 # url = "https://www.infowars.com/posts/your-kids-are-already-communist-and-college-will-make-it-worse"
 # url = "https://abcnews.go.com/Politics/trump-gets-warm-house-republicans-1st-stop-back/story?id=115810334"
 
-# url = "https://www.foxnews.com/media/feminists-argue-trad-wife-influencers-social-media-may-have-helped-trump-win-over-womens-vote"
-url = "https://www.newyorker.com/magazine/dispatches/what-does-it-mean-that-donald-trump-is-a-fascist"
+url = "https://www.foxnews.com/media/feminists-argue-trad-wife-influencers-social-media-may-have-helped-trump-win-over-womens-vote"
+#url = "https://www.newyorker.com/magazine/dispatches/what-does-it-mean-that-donald-trump-is-a-fascist"
+url = "https://www.reuters.com/technology/australia-passes-social-media-ban-children-under-16-2024-11-28/"
+url = "https://www.nbcsportsboston.com/nfl/new-england-patriots/fix-offense-tee-higgins-free-agency-nfl-draft/670127/"
 
 article = newspaper.article(url)
 text = article.text
