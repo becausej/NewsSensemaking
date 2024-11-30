@@ -21,6 +21,10 @@ def get_max_sentence(text):
         key=lambda sentence: abs(sentence.sentiment.score), #maybe pick out top positive and top negative?
         reverse=True
     )
+
+    if not sorted_sentiments:
+        return jsonify({'message': 'Failed'})
+    
     max_sentence = sorted_sentiments[0]
 
     return jsonify({'max_sentence': max_sentence.text.content,

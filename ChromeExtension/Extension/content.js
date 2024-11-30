@@ -1,6 +1,17 @@
+// Sends popup the article title
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "getTitle") {
+    const title = document.title;
+    console.log("got title")
+    sendResponse({ title });
+  }
+});
+
+// Max sentiment sentence highlighting
 function highlightMaxSentimentSentence() {
   console.log("start");
   const current_url = window.location.toString();
+  console.log("title", document.title);
 
   fetch('http://127.0.0.1:5000/get_max_sentence', {
       method: 'POST', 
@@ -12,17 +23,18 @@ function highlightMaxSentimentSentence() {
   .then(response => response.json())
   .then(data => {
       console.log("sentence", data.max_sentence);
-      sent = data.max_sentence;
+      sentence = data.max_sentence;
 
-      temp = findElement(document, sent);
-      if (!temp) {
+      node = findElement(document, sentence);
+      if (!node) {
         console.log("failed");
         return;
       }
 
-      const highlightedWord = `<span style="background-color: yellow;">${sent}</span>`;
-      temp.innerHTML = temp.innerHTML.replace(sent, highlightedWord)
-      console.log("should've worked")
+      const color = data.max_sentence_score < 0 ? "blue" : "yellow";
+      const highlightedSentence = `<span style="background-color: ${color};">${sentence}</span>`;
+      //node.innerHTML = node.innerHTML.replace(sentence, highlightedSentence);
+      console.log("should've worked");
   })
   .catch(error => console.error('Error:', error));
 }
