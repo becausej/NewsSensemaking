@@ -2,13 +2,23 @@ import numpy as np
 from get_dataset import get_and_preprocess_data
 from nela_features.nela_features import NELAFeatureExtractor
 from tqdm import tqdm
-import pandas as pd
+from google.cloud import language_v2
 
 nela = NELAFeatureExtractor()
+client = language_v2.LanguageServiceClient()
+
+def analyze_sentiment(text):
+    document = {"content": text, "type_": language_v2.Document.Type.PLAIN_TEXT, "language_code": "en"}
+    encoding_type = language_v2.EncodingType.UTF8
+
+    response = client.analyze_sentiment(
+        request={"document": document, "encoding_type": encoding_type}
+    )
+    return response.document_sentiment.score
 
 # Apply nela to a single sentence
 def find_nela_features(inp):
-    feature_vector, feature_names = nela.extract_all(inp)
+    feature_vector, feature_names = nela.extract_all(str(inp))
     return feature_vector, feature_names
 
 # Embedding vectors to test on
@@ -68,48 +78,9 @@ def apply_features(statements, glove_embeddings):
     for statement in tqdm(statements):
         nela_features, nela_names = find_nela_features(statement)
         embedding_features, embeddings_names = find_embedding_features(statement, glove_embeddings)
-        all_features = nela_features + embedding_features
+        sentiment = analyze_sentiment(statement)
+        all_features = nela_features + embedding_features + [sentiment]
         features.append(all_features)
-        names = nela_names + embeddings_names
+        names = nela_names + embeddings_names + ['sentiment']
     np_features = np.array(features)
     return np_features, names
-
-def transform():
-    train_statement, train_label, test_statement, test_label, validation_statement, validation_label = get_and_preprocess_data()
-    
-    # Load glove embeddings
-    glove_embeddings = {}
-    print("Loading glove embeddings")
-    with open('glove.6B.100d.txt', 'r') as f:
-        for line in tqdm(f):
-            values = line.split(' ')
-            word = values[0]
-            vector = np.asarray(values[1:], "float32")
-            glove_embeddings[word] = vector
-
-    print("Transforming train dataset")
-    train_features, train_names = apply_features(train_statement, glove_embeddings)
-    print("Transforming test dataset")
-    test_features, test_names = apply_features(test_statement, glove_embeddings)
-    print("Transforming validation dataset")
-    validation_features, validation_names = apply_features(validation_statement, glove_embeddings)
-
-    # Save data
-    train_csv = pd.DataFrame(train_features, columns=train_names)
-    train_csv['label'] = train_label
-    train_csv.to_csv('dataset/train_features.csv', index=False)
-
-    test_csv = pd.DataFrame(test_features, columns=test_names)
-    test_csv['label'] = test_label
-    test_csv.to_csv('dataset/test_features.csv', index=False)
-    
-    validation_csv = pd.DataFrame(validation_features, columns=validation_names)
-    validation_csv['label'] = validation_label
-    validation_csv.to_csv('dataset/validation_features.csv', index=False)
-    
-    print("Data transformed and saved in dataset folder")
-
-
-
-if __name__ == '__main__':
-    transform()
