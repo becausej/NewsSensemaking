@@ -9,11 +9,9 @@
   "description": "News Article Analysis",
 
   "permissions": [ 
-
       "activeTab",
       "scripting",
-      "tabs"  
-
+      "tabs"
   ],
 
   "action": {
@@ -26,6 +24,9 @@
       "js": ["content.js"],
       "all_frames": false
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
 
 }

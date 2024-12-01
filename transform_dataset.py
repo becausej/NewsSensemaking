@@ -1,5 +1,4 @@
 import numpy as np
-from get_dataset import get_and_preprocess_data
 from nela_features.nela_features import NELAFeatureExtractor
 from tqdm import tqdm
 from google.cloud import language_v2
