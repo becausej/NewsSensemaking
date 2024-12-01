@@ -57,6 +57,81 @@ function findElement(root, value) {
       }
   }
 }
+// Function to get the score of a sentence by sending it to the background script
+function getSentenceScore(sentence) {
+  console.log("getting score");
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(
+      { action: 'getSentenceScore', sentence },
+      (response) => {
+        if (response && typeof response.score === 'number') {
+          resolve(response.score);
+        } else {
+          console.log("failed to get score");
+          resolve(0); // Default score if none received
+        }
+      }
+    );
+  });
+}
 
-// Run the function when the page has loaded
-highlightMaxSentimentSentence();
+// Function to map a score to a background color (from white to yellow)
+function getBackgroundColor(score) {
+  // Assuming score is between 0 and 1
+  const intensity = Math.floor(score * 255);
+  return `rgb(255, 255, ${255 - intensity})`; // From white to yellow
+}
+
+// Main function to style sentences
+async function styleSentences() {
+  const walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    null,
+    false
+  );
+  let node;
+  const textNodes = [];
+
+  // Collect all text nodes
+  while ((node = walker.nextNode())) {
+    textNodes.push(node);
+  }
+
+  // Process each text node
+  for (const textNode of textNodes) {
+    // Skip script and style elements
+    if (
+      textNode.parentNode &&
+      !['SCRIPT', 'STYLE', 'NOSCRIPT'].includes(textNode.parentNode.nodeName)
+    ) {
+      const sentences = textNode.nodeValue.split(/(?<=[.?!])\s+/);
+      if (sentences.length > 0) {
+        const fragment = document.createDocumentFragment();
+
+        for (const sentence of sentences) {
+          const span = document.createElement('span');
+          const score = await getSentenceScore(sentence);
+          span.textContent = sentence + ' ';
+          span.style.backgroundColor = getBackgroundColor(score);
+          fragment.appendChild(span);
+        }
+
+        textNode.parentNode.replaceChild(fragment, textNode);
+      }
+    }
+  }
+}
+
+// Initialize the script
+function init() {
+  styleSentences();
+  // highlightMaxSentimentSentence();
+}
+
+// Run the init function when the DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
