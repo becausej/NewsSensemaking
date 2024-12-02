@@ -11,7 +11,7 @@ bp = Blueprint('routes', __name__)
 # Load glove embeddings
 glove_embeddings = {}
 print("Loading glove embeddings")
-with open('backend_logic/glove.6B.100d.txt', 'r',encoding='utf8') as f:
+with open('backend_logic/glove.6B.100d.txt', 'r', encoding='utf8') as f:
     for line in f:
         values = line.split(' ')
         word = values[0]

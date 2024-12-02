@@ -30,10 +30,9 @@ function highlightMaxSentimentSentence() {
         console.log("failed");
         return;
       }
-
-      const color = data.max_sentence_score < 0 ? "blue" : "yellow";
+      const color = data.max_sentence_score < 0 ? "cyan" : "yellow";
       const highlightedSentence = `<span style="background-color: ${color};">${sentence}</span>`;
-      //node.innerHTML = node.innerHTML.replace(sentence, highlightedSentence);
+      node.innerHTML = node.innerHTML.replace(sentence, highlightedSentence);
       console.log("should've worked");
   })
   .catch(error => console.error('Error:', error));
@@ -125,8 +124,8 @@ async function styleSentences() {
 
 // Initialize the script
 function init() {
-  styleSentences();
-  // highlightMaxSentimentSentence();
+  //styleSentences();
+  //highlightMaxSentimentSentence();
 }
 
 // Run the init function when the DOM is ready
