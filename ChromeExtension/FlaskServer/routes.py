@@ -37,7 +37,23 @@ def classify():
     sentence = data.get('sentence', '')
     if sentence.strip() == '' or sentence is None:
         return 0
-    return predict_sentence(sentence, glove_embeddings)
+    return jsonify({'score': predict_sentence(sentence, glove_embeddings),
+                  'message': 'Success'})
+
+@bp.route('/bias_indicator', methods=['POST'])
+def bias_indicator():
+    data = request.json
+    text = getTextFromUrl(data.get('url', ''))
+    # split text into sentences
+    sentences = text.split('.')
+    total = 0
+    for sentence in sentences:
+        total += predict_sentence(sentence, glove_embeddings)
+    if len(sentences) == 0:
+        return jsonify({'score': 0,
+                  'message': 'Success'})
+    return jsonify({'score': total / len(sentences) * 100,
+                  'message': 'Success'})
 
 @bp.route('/classify_full_text', methods=['POST'])
 def classify_text():
