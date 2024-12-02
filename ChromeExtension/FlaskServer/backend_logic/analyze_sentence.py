@@ -8,7 +8,7 @@ from flask import jsonify
 nela = NELAFeatureExtractor()
 client = language_v2.LanguageServiceClient()
 model = pickle.load(open('backend_logic/model.pkl', 'rb'))
-opt_threshold = 0.4494572
+opt_threshold = 0.37348342
 
 test_embeddings = [
     # Socioeconomic status
@@ -77,26 +77,39 @@ def find_nela_features(inp):
     return feature_vector, feature_names
 
 def get_features(text, glove_embeddings):
+    text = text.lower()
     nela_features, nela_names = find_nela_features(text)
     sentiment_feature, sentiment_name = [analyze_sentiment(text)], ['sentiment']
     embedding_features, embeddings_names = find_embedding_features(text, glove_embeddings)
     all_features = nela_features + embedding_features + sentiment_feature
     names = nela_names + embeddings_names + sentiment_name
     df = pd.DataFrame([all_features], columns=names)
-    dropped_features = {'sneu', 'FairnessVirtue', 'report_verbs', 'num_dates', 'NNS', 'AuthorityVirtue', 'JJS', 'vadneu', 'VB', '``', '--', 'WP$', 'LS', '(', 'factives', 'IngroupVice', 'AuthorityVice', 'lix', 'wneu', 'FairnessVice', 'wpos', 'positive_opinion_words', 'RB', 'FW', 'VBP', 'avg_wordlen', 'PurityVice', 'HarmVirtue', 'EX', 'SYM', '$', 'PDT', 'allpunc', 'vadneg', 'implicatives', 'UH', 'WRB', 'white-collar/blue-collar', 'assertatives', 'JJR', 'RP', ',', 'RBR', 'vadpos', 'MD', 'IngroupVirtue', '.', 'num_locations', 'male/female stereotypes', ':', 'VBD', "''", ')', 'POS', 'WDT', 'HarmVice', 'hedges', 'PRP', 'VBN', 'PurityVirtue', 'RBS', 'VBG', 'MoralityGeneral', 'sneg'}
+    dropped_features = ['allpunc', 'word_count', 'allcaps', 'EX', 'IN', 'JJR',
+                   'LS', 'NN', 'NNPS', 'PDT', 'POS', 'PRP', 'exclaim',
+                   'RB', 'RBR', 'RBS', 'SYM', 'TO', 'UH', 'WP$', 'WRB', 'VBD', 'VBG',
+                   'VBN', 'VBZ', 'WDT', 'WP', '$', "''", '(', ')', ',', '--', '.', ':',
+                   '``', 'lix', 'factives', 'hedges', 'implicatives', 'report_verbs',
+                   'negative_opinion_words', 'vadneg', 'vadneu', 'vadpos', 'wneg', 'wpos',
+                   'sneg', 'spos', 'HarmVice', 'FairnessVirtue', 'FairnessVice',
+                   'IngroupVirtue', 'IngroupVice', 'AuthorityVirtue', 'AuthorityVice',
+                   'PurityVirtue', 'PurityVice', 'MoralityGeneral', 'num_locations', 'num_dates']
+    
     df = df.drop(list(dropped_features), axis=1)
     return df
 
 def predict_sentence(text, glove_embeddings):
-    feature_vector = get_features(text, glove_embeddings)
-    y = model.predict_proba(feature_vector)
-    y = y[0][1]
-    # Do some transform on y using optimal threshold
-    # Anything that is 1 should be reliable
-    # Anything else is a range of unrealiability from 1 (unreliable) to 0 (reliable)
-    y = max(0, y - opt_threshold) / (1 - opt_threshold)
-    return jsonify({'score': y,
-                  'message': 'Success'})
+    try:
+        feature_vector = get_features(text, glove_embeddings)
+        y = model.predict_proba(feature_vector)
+        y = y[0][1]
+        # Do some transform on y using optimal threshold
+        # Anything that is 1 should be reliable
+        # Anything else is a range of unrealiability from 1 (unreliable) to 0 (reliable)
+        y = max(0, y - opt_threshold) / (1 - opt_threshold)
+        return y
+    except Exception as e:
+        print(e)
+        return 0
     
 if __name__ == '__main__':
     glove_embeddings = {}
