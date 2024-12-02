@@ -18,4 +18,4 @@ def get_allsides(url):
     distances = [jellyfish.jaro_similarity(website.lower(), x.lower()) for x in sources]
     loc = distances.index(max(distances))
     row = allsides_vals[loc]
-    return jsonify({'allsides_rating': row[1], 'message': "allsides not doomed"})
+    return jsonify({'allsides_rating': row[1], 'message': 'Success'})

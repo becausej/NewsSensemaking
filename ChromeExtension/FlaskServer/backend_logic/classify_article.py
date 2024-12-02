@@ -16,4 +16,4 @@ def get_knn_class_text(text):
 
 def get_knn_class(url):
     text = get_article_text(url)
-    return jsonify({'class':get_knn_class_text(text),'message':"knn class not doomed"})
+    return jsonify({'class':get_knn_class_text(text),'message':'Success'})

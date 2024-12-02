@@ -26,4 +26,4 @@ def get_nela_smog_text(text):
 
 def get_nela_smog(url):
     text = get_article_text(url)
-    return jsonify({'smog_score': get_nela_smog_text(text), 'message': "smog not doomed"})
+    return jsonify({'smog_score': get_nela_smog_text(text), 'message': 'Success'})
