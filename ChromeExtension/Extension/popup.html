@@ -2,19 +2,172 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Sensemaking</title>
+    <title>News Sensemaking Analysis</title>
     <style>
-        /* style needs work TODO */
+        body {
+            font-family: Arial, sans-serif;
+            width: 320px; /* Increased width to accommodate labels */
+            padding: 15px;
+            box-sizing: border-box;
+            background-color: #cdcdcd;
+        }
+
+        .small-text {
+            font-size: 12px;
+            color: #313131;
+            margin-bottom: 5px;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #313131;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .medium-text {
+            font-size: 14px;
+            color: #444;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .bar-container {
+            position: relative;
+            width: 100%;
+            height: 25px;
+            background-color: #ddd;
+            border-radius: 12.5px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        /* Solid Bars with Gradient Backgrounds */
+        .political-bar {
+            height: 100%;
+            background: linear-gradient(to right, rgb(58, 147, 255), rgb(248, 200, 255), rgb(248, 53, 53));
+        }
+
+        .bias-bar {
+            height: 100%;
+            background: linear-gradient(to right, white, rgb(255, 113, 42));
+        }
+
+        .sentiment-bar {
+            height: 100%;
+            background: linear-gradient(to right, cyan, white, yellow);
+        }
+
+        /* Indicator Line */
+        .indicator-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #000;
+        }
+
+        /* Labels for Bar Ends */
+        .bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #363636;
+            margin-top: 3px;
+        }
+
+        /* Radio Group Styles */
+        .radio-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-group label {
+            font-size: 14px;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Style radio buttons */
+        input[type="radio"] {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>News Sensemaking</h1>
+    <div class="small-text">News Sensemaking Analysis</div>
+    <div class="title" id="article-title">[Article Title Here]</div>
+    
+    <div class="info-row">
+        <div class="medium-text" id="reading-level">Reading Level: [Level]</div>
+        <div class="medium-text" id="reliable">Reliable: [Yes/No]</div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Political Levels:</div>
+        <div class="bar-container">
+            <div class="political-bar" id="political-level-bar"></div>
+            <div class="indicator-line" id="political-level-indicator"></div>
+        </div>
+        <div class="bar-labels">
+            <span>Left</span>
+            <span>Right</span>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Bias Indicator:</div>
+        <div class="bar-container">
+            <div class="bias-bar" id="bias-indicator-bar"></div>
+            <div class="indicator-line" id="bias-indicator-indicator"></div>
+        </div>
+        <div class="bar-labels">
+            <span>Less Bias</span>
+            <span>More Bias</span>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Sentiment:</div>
+        <div class="bar-container">
+            <div class="sentiment-bar" id="sentiment-bar"></div>
+            <div class="indicator-line" id="sentiment-indicator"></div>
+        </div>
+        <div class="bar-labels">
+            <span>Negative</span>
+            <span>Positive</span>
+        </div>
+    </div>
 
-    <h2>Sentiment <span class="number" id="sentiment_value">...</span></h2>
+    <!-- Global Radio Group with Two Radio Buttons -->
+    <div class="radio-group">
+        <label>
+            <input type="radio" name="global-option" value="sentiment-display" checked="True"> Sentiment Display
+        </label>
+        <label>
+            <input type="radio" name="global-option" value="bias-display"> Bias Display
+        </label>
+    </div>
 
-    <h2>Etc.</h2>
-
-    <script src="popup.js"></script>
+    <!-- Reference to external JavaScript file -->
+    <script src="popup.js" defer></script>
 </body>
 </html>
