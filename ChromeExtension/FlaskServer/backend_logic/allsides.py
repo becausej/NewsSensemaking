@@ -4,7 +4,7 @@ import tldextract
 from flask import jsonify
 
 def get_allsides(url):
-    allsides = pd.read_csv('dataset/allsides.csv')
+    allsides = pd.read_csv('backend_logic/allsides.csv')
     parsed = tldextract.extract(url)
     website = parsed.domain
     allsides_vals = allsides.values

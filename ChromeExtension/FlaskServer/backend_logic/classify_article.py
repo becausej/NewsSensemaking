@@ -62,15 +62,15 @@ def embedding_vector(text, glove_embeddings):
 def get_article_text(url):
     return newspaper.article(url).text
 
-def get_knn_class_text(text):
-    with open('knnfakenews.pkl', 'rb') as f:
+def get_knn_class_text(text,glove_embeddings):
+    with open('backend_logic/knnfakenews.pkl', 'rb') as f:
         knn = pickle.load(f)
     nela = NELAFeatureExtractor()
     feature_vector, feature_names = nela.extract_all(text)
     feature_vector = feature_vector + embedding_vector(text,glove_embeddings)
     vector = [[feature_vector[i] for i in [89, 92, 4, 59, 24]]]
-    return True if knn.predict(vector) == [1] else False
+    return "Reliable" if knn.predict(vector) == [1] else "Unreliable"
 
-def get_knn_class(url):
+def get_knn_class(url,glove_embeddings):
     text = get_article_text(url)
-    return jsonify({'class':get_knn_class_text(text),'message':'Success'})
+    return jsonify({'class':get_knn_class_text(text,glove_embeddings),'message':'Success'})
