@@ -19,4 +19,5 @@ def get_allsides(url):
     loc = distances.index(max(distances))
     row = allsides_vals[loc]
     dict = {'center':50,'left-center':25,'left':5,'right-center':75,'right':95}
+    print(row,dict[row[1]])
     return jsonify({'allsides_rating': dict[row[1]], 'message': 'Success'})
