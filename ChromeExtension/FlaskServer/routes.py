@@ -3,7 +3,7 @@ import newspaper
 import numpy as np
 from backend_logic.google_sentiment import get_max_sentence, get_sentiment_values
 from backend_logic.analyze_sentence import predict_sentence
-from backend_logic.doomed import get_knn_class
+from backend_logic.classify_article import get_knn_class
 from backend_logic.smog import get_nela_smog
 from backend_logic.allsides import get_allsides
 bp = Blueprint('routes', __name__)
