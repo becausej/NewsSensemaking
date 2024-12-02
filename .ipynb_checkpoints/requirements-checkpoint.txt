@@ -1,4 +1,0 @@
-pip install newspaper4k
-pip install lxml_html_clean
-pip install typing_extensions
-pip install nltk
