@@ -1,6 +1,7 @@
 import pandas as pd
 import jellyfish
 import tldextract
+from flask import jsonify
 
 def get_allsides(url):
     allsides = pd.read_csv('dataset/allsides.csv')
@@ -14,10 +15,7 @@ def get_allsides(url):
     if rows != []:
         rows.sort(key = lambda x: x[2],reverse=True)
         return rows[0]
-    #distances = [jellyfish.levenshtein_distance(website.lower(), x.lower()) for x in sources]
-    #loc = distances.index(min(distances))
     distances = [jellyfish.jaro_similarity(website.lower(), x.lower()) for x in sources]
     loc = distances.index(max(distances))
-    #source_allsides_format = sources[loc]
     row = allsides_vals[loc]
-    return row
+    return jsonify({'allsides_rating': row[1], 'message': "allsides not doomed"})

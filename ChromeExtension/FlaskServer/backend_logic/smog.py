@@ -1,5 +1,6 @@
 from nela_features.nela_features import NELAFeatureExtractor
 import newspaper
+from flask import jsonify
 
 def get_article_text(url):
     return newspaper.article(url).text
@@ -25,4 +26,4 @@ def get_nela_smog_text(text):
 
 def get_nela_smog(url):
     text = get_article_text(url)
-    return get_nela_smog_text(text)
+    return jsonify({'smog_score': get_nela_smog_text(text), 'message': "smog not doomed"})

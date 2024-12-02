@@ -1,6 +1,7 @@
 import newspaper
 from nela_features.nela_features import NELAFeatureExtractor
 import pickle
+from flask import jsonify
 
 def get_article_text(url):
     return newspaper.article(url).text
@@ -15,4 +16,4 @@ def get_knn_class_text(text):
 
 def get_knn_class(url):
     text = get_article_text(url)
-    return get_knn_class_text(text)
+    return jsonify({'class':get_knn_class_text(text),'message':"knn class not doomed"})
