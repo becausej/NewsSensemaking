@@ -1,11 +1,12 @@
 // // set popup information
 document.addEventListener('DOMContentLoaded', async function () {
   // sentiment
+  //getTitle();
   getSentiment();
   getAllsides();
   getSmog();
   getFullTextClass();
-  getTitle();
+  
   // etc.
 });
 
@@ -51,7 +52,6 @@ async function getAllsides() {
   })
   .then(response => response.json())
   .then(data => {
-      
       document_rating = data.allsides_rating;
       if (document_rating) {
         setIndicator('political-level-indicator', document_rating);
@@ -61,11 +61,12 @@ async function getAllsides() {
 }
 
 async function getSmog() {
+  console.log("sup");
   const current_url = await getUrl(); 
   if (!current_url) {
     return;
   }
-
+  console.log("hello");
   fetch('http://127.0.0.1:5000/smog_full_text', {
       method: 'POST', 
       headers: {
@@ -75,9 +76,10 @@ async function getSmog() {
   })
   .then(response => response.json())
   .then(data => {
-      
+    console.log("smog", data.smog_score);
       document_smog = data.smog_score;
       if (document_smog) {
+        console.log("smog", data.smog_score);
         document.getElementById('reading-level').textContent = document_smog;
       }
   })
@@ -141,9 +143,8 @@ function getTitle() {
 
 document.addEventListener('DOMContentLoaded', function() {
   // Replace the placeholders with actual data
-  document.getElementById('article-title').textContent = "...";
-  document.getElementById('reading-level').textContent = "Reading Level: 8th Grade";
-  document.getElementById('reliable').textContent = "Reliable: Yes";
+  document.getElementById('reading-level').textContent = "...";
+  document.getElementById('reliable').textContent = "...";
   
   // Set indicator positions based on some value (0 to 100)
   const politicalLevel = 50; // Example value
