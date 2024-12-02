@@ -1,7 +1,10 @@
 // // set popup information
 document.addEventListener('DOMContentLoaded', async function () {
   // sentiment
-  getSentiment(); 
+  getSentiment();
+  getAllsides();
+  getSmog()
+  getFullTextClass()
   // etc.
 });
 
@@ -32,6 +35,78 @@ async function getSentiment() {
   })
   .catch(error => console.error('Error:', error));
   return 0;
+}
+
+async function getAllsides() {
+  const current_url = await getUrl(); 
+  if (!current_url) {
+    return;
+  }
+
+  fetch('http://127.0.0.1:5000/allsides_rating', {
+      method: 'POST', 
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: current_url })
+  })
+  .then(response => response.json())
+  .then(data => {
+      
+      document_rating = data.allsides_rating;
+      if (document_rating) {
+        setIndicator('political-level-indicator', document_rating);
+      }
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+async function getSmog() {
+  const current_url = await getUrl(); 
+  if (!current_url) {
+    return;
+  }
+
+  fetch('http://127.0.0.1:5000/smog_full_text', {
+      method: 'POST', 
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: current_url })
+  })
+  .then(response => response.json())
+  .then(data => {
+      
+      document_smog = data.smog_score;
+      if (document_smog) {
+        document.getElementById('reading-level').textContent = document_smog;
+      }
+  })
+  .catch(error => console.error('Error:', error));
+}
+
+async function getFullTextClass() {
+  const current_url = await getUrl(); 
+  if (!current_url) {
+    return;
+  }
+
+  fetch('http://127.0.0.1:5000/classify_full_text', {
+      method: 'POST', 
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: current_url })
+  })
+  .then(response => response.json())
+  .then(data => {
+      
+      document_class = data.class;
+      if (document_class) {
+        document.getElementById('reliable').textContent = document_class;
+      }
+  })
+  .catch(error => console.error('Error:', error));
 }
 
 function getUrl() {

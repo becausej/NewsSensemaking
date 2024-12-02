@@ -43,7 +43,7 @@ def classify():
 def classify_text():
     data = request.get_json()
     url = data.get('url', '')
-    return get_knn_class(url)
+    return get_knn_class(url,glove_embeddings)
 
 @bp.route('/smog_full_text', methods=['POST'])
 def smog_text():

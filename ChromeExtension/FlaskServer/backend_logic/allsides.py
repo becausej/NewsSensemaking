@@ -18,4 +18,5 @@ def get_allsides(url):
     distances = [jellyfish.jaro_similarity(website.lower(), x.lower()) for x in sources]
     loc = distances.index(max(distances))
     row = allsides_vals[loc]
-    return jsonify({'allsides_rating': row[1], 'message': 'Success'})
+    dict = {'center':50,'left-center':25,'left':5,'right-center':75,'right':95}
+    return jsonify({'allsides_rating': dict[row[1]], 'message': 'Success'})
