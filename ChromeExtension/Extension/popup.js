@@ -3,8 +3,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   // sentiment
   getSentiment();
   getAllsides();
-  getSmog()
-  getFullTextClass()
+  getSmog();
+  getFullTextClass();
+  getTitle();
   // etc.
 });
 
@@ -26,8 +27,6 @@ async function getSentiment() {
       document_sentiment = data.total_sentiment;
       console.log("sentiment", document_sentiment);
       if (document_sentiment) {
-        //const sentimentElement = document.getElementById('sentiment_value'); // i dont love that the ui logic is here (TODO?)
-        //sentimentElement.textContent = document_sentiment.toFixed(3);
         const formatted = (document_sentiment + 1) * 50
         setIndicator('sentiment-indicator', formatted);
         return document_sentiment;
@@ -128,6 +127,7 @@ function getTitle() {
       chrome.tabs.sendMessage(tabs[0].id, { action: "getTitle" }, (response) => {
         if (response && response.title) {
           console.log("title", response.title)
+          document.getElementById('article-title').textContent = response.title;
           resolve(response.title);
         } else {
           console.error("Failed to get the title");
@@ -141,7 +141,7 @@ function getTitle() {
 
 document.addEventListener('DOMContentLoaded', function() {
   // Replace the placeholders with actual data
-  document.getElementById('article-title').textContent = "Example Article Title";
+  document.getElementById('article-title').textContent = "...";
   document.getElementById('reading-level').textContent = "Reading Level: 8th Grade";
   document.getElementById('reliable').textContent = "Reliable: Yes";
   
