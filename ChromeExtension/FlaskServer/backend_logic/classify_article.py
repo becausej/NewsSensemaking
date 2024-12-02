@@ -4,29 +4,28 @@ import pickle
 from flask import jsonify
 import numpy as np
 
-test_embeddings = [
-    # Socioeconomic status
-    {'name': 'rich/poor', 'dir1': ["rich", "wealthy", "affluent"], "dir2": ["poor", "impoverished", "destitute"]},
-
-    # Age bias
-    {'name': 'young/old', 'dir1': ["young", "youthful", "vibrant"], "dir2": ["old", "elderly", "aged"]},
-
-    # Gender stereotypes (roles)
-    {'name': 'male/female stereotypes', 'dir1': ["leader", "strong", "assertive"],
-     "dir2": ["nurturing", "caring", "supportive"]},
-
-    # Rural vs. Urban bias
-    {'name': 'rural/urban', 'dir1': ["urban", "city"], "dir2": ["rural", "countryside"]},
-
-    # Employment bias (white-collar vs. blue-collar)
-    {'name': 'white-collar/blue-collar', 'dir1': ["professional", "educated", "executive"],
-     "dir2": ["manual", "laborer", "working-class"]},
-
-    # Intelligence perception
-    {'name': 'smart/dumb', 'dir1': ["smart", "intelligent"], 'dir2': ["dumb", "stupid"]},
-]
-
 def find_embedding_features(inp, glove_embeddings):
+    test_embeddings = [
+        # Socioeconomic status
+        {'name': 'rich/poor', 'dir1': ["rich", "wealthy", "affluent"], "dir2": ["poor", "impoverished", "destitute"]},
+
+        # Age bias
+        {'name': 'young/old', 'dir1': ["young", "youthful", "vibrant"], "dir2": ["old", "elderly", "aged"]},
+
+        # Gender stereotypes (roles)
+        {'name': 'male/female stereotypes', 'dir1': ["leader", "strong", "assertive"],
+         "dir2": ["nurturing", "caring", "supportive"]},
+
+        # Rural vs. Urban bias
+        {'name': 'rural/urban', 'dir1': ["urban", "city"], "dir2": ["rural", "countryside"]},
+
+        # Employment bias (white-collar vs. blue-collar)
+        {'name': 'white-collar/blue-collar', 'dir1': ["professional", "educated", "executive"],
+         "dir2": ["manual", "laborer", "working-class"]},
+
+        # Intelligence perception
+        {'name': 'smart/dumb', 'dir1': ["smart", "intelligent"], 'dir2': ["dumb", "stupid"]},
+    ]
     # Find the average embedding of the sentence
     words = inp.split()
     embedding = np.zeros(len(glove_embeddings['the']))
