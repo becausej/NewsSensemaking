@@ -68,8 +68,8 @@ def get_knn_class_text(text,glove_embeddings):
     feature_vector, feature_names = nela.extract_all(text)
     feature_vector = feature_vector + embedding_vector(text,glove_embeddings)
     vector = [[feature_vector[i] for i in [89, 92, 4, 59, 24]]]
-    return "Reliable" if knn.predict(vector) == [1] else "Unreliable"
+    return jsonify({'class':"Reliable" if knn.predict(vector) == [1] else "Unreliable",'message':'Success'})
 
 def get_knn_class(url,glove_embeddings):
     text = get_article_text(url)
-    return jsonify({'class':get_knn_class_text(text,glove_embeddings),'message':'Success'})
+    return get_knn_class_text(text,glove_embeddings)

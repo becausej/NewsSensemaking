@@ -3,8 +3,8 @@ import newspaper
 import numpy as np
 from backend_logic.google_sentiment import get_max_sentence, get_sentiment_values
 from backend_logic.analyze_sentence import predict_sentence
-from backend_logic.classify_article import get_knn_class
-from backend_logic.smog import get_nela_smog
+from backend_logic.classify_article import get_knn_class_text
+from backend_logic.smog import get_nela_smog_text
 from backend_logic.allsides import get_allsides
 bp = Blueprint('routes', __name__)
 
@@ -58,14 +58,14 @@ def bias_indicator():
 @bp.route('/classify_full_text', methods=['POST'])
 def classify_text():
     data = request.get_json()
-    url = data.get('url', '')
-    return get_knn_class(url,glove_embeddings)
+    text = data.get('text', '')
+    return get_knn_class_text(text,glove_embeddings)
 
 @bp.route('/smog_full_text', methods=['POST'])
 def smog_text():
     data = request.get_json()
-    url = data.get('url', '')
-    return get_nela_smog(url)
+    text = data.get('text', '')
+    return get_nela_smog_text(text)
 
 @bp.route('/allsides_rating', methods=['POST'])
 def allsides_text():

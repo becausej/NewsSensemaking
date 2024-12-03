@@ -10,6 +10,57 @@ document.addEventListener("DOMContentLoaded", async function () {
     // etc.
 });
 
+function getFullTextFromPage() {
+    return new Promise((resolve, reject) => {
+      function extractMainTextBody() {
+        const selectors = [
+          'article',
+          'div[class*="content"]',
+          'div[class*="article"]',
+          'main',
+          'body'
+        ];
+  
+        let textBody = '';
+  
+        for (const selector of selectors) {
+          const element = document.querySelector(selector);
+          if (element) {
+            textBody = element.innerText.trim();
+            if (textBody) break;
+          }
+        }
+  
+        return textBody || 'No main text content found on this page.';
+      }
+  
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (!tabs || tabs.length === 0) {
+          reject("No active tab found.");
+          return;
+        }
+  
+        const tab = tabs[0];
+  
+        chrome.scripting.executeScript(
+          {
+            target: { tabId: tab.id },
+            func: extractMainTextBody,
+          },
+          (results) => {
+            if (chrome.runtime.lastError) {
+              reject(`Script injection failed: ${chrome.runtime.lastError.message}`);
+            } else if (results && results[0] && results[0].result) {
+              resolve(results[0].result);
+            } else {
+              reject("No text content extracted.");
+            }
+          }
+        );
+      });
+    });
+  }
+  
 async function getSentiment() {
     const current_url = await getUrl();
     if (!current_url) {
@@ -62,8 +113,10 @@ async function getAllsides() {
 
 async function getSmog() {
     console.log("sup");
-    const current_url = await getUrl();
-    if (!current_url) {
+    const current_text = await getFullTextFromPage();
+    console.log("found text for smogging")
+    if (!current_text) {
+        console.log("ERROR GETTING TEXT")
         return;
     }
     console.log("hello");
@@ -72,7 +125,7 @@ async function getSmog() {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: current_url }),
+        body: JSON.stringify({ text: current_text }),
     })
         .then((response) => response.json())
         .then((data) => {
@@ -88,17 +141,18 @@ async function getSmog() {
 }
 
 async function getFullTextClass() {
-    const current_url = await getUrl();
-    if (!current_url) {
+    const current_text = await getFullTextFromPage();
+    console.log("found text for classification")
+    if (!current_text) {
+        console.log("ERROR GETTING TEXT")
         return;
     }
-
     fetch("http://127.0.0.1:5000/classify_full_text", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: current_url }),
+        body: JSON.stringify({ text: current_text }),
     })
         .then((response) => response.json())
         .then((data) => {

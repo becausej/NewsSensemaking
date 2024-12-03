@@ -21,9 +21,9 @@ def smog_to_text(smog):
 def get_nela_smog_text(text):
     nela = NELAFeatureExtractor()
     complexity_vector, complexity_names = nela.extract_complexity(text)
-    return smog_to_text(complexity_vector[4])
+    return jsonify({'smog_score': smog_to_text(complexity_vector[4]), 'message': 'Success'})
 
 
 def get_nela_smog(url):
     text = get_article_text(url)
-    return jsonify({'smog_score': get_nela_smog_text(text), 'message': 'Success'})
+    return get_nela_smog_text(text)
