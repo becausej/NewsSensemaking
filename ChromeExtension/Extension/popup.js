@@ -119,13 +119,18 @@ async function getSmog() {
         console.log("ERROR GETTING TEXT")
         return;
     }
+    const current_url = await getUrl();
+    if (!current_url) {
+        return;
+    }
+
     console.log("hello");
     fetch("http://127.0.0.1:5000/smog_full_text", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: current_text }),
+        body: JSON.stringify({ text: current_text, url: current_url }),
     })
         .then((response) => response.json())
         .then((data) => {
@@ -147,12 +152,17 @@ async function getFullTextClass() {
         console.log("ERROR GETTING TEXT")
         return;
     }
+
+    const current_url = await getUrl();
+    if (!current_url) {
+        return;
+    }
     fetch("http://127.0.0.1:5000/classify_full_text", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ text: current_text }),
+        body: JSON.stringify({ text: current_text, url: current_url }),
     })
         .then((response) => response.json())
         .then((data) => {

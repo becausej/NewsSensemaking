@@ -7,6 +7,9 @@ from backend_logic.classify_article import get_knn_class_text
 from backend_logic.smog import get_nela_smog_text
 from backend_logic.allsides import get_allsides
 bp = Blueprint('routes', __name__)
+# cached calls contains:
+# key: url, value: {'query': query, 'response': response}
+cached_calls = {}
 
 # Load glove embeddings
 glove_embeddings = {}
@@ -22,30 +25,47 @@ print("Glove embeddings loaded")
 @bp.route('/get_max_sentence', methods=['POST'])
 def max_sentence():
     data = request.json
-    text = getTextFromUrl(data.get('url', ''))
-    return get_max_sentence(text)
+    url = data.get('url', '')
+    if url in cached_calls and 'get_max_sentence' in cached_calls[url]:
+        return cached_calls[url]['cached_calls']
+    text = getTextFromUrl(url)
+    response = get_max_sentence(text)
+    cached_calls[url] = {'get_max_sentence': response}
+    return response
 
 @bp.route('/get_analysis', methods=['POST'])
 def sentiment():
     data = request.json
-    text = getTextFromUrl(data.get('url', ''))
-    return get_sentiment_values(text)
+    url = data.get('url', '')
+    if url in cached_calls and 'get_analysis' in cached_calls[url]:
+        return cached_calls[url]['get_analysis']
+    text = getTextFromUrl(url)
+    response = get_sentiment_values(text)
+    cached_calls[url] = {'get_analysis': response}
+    return response
 
 @bp.route('/classify_sentence', methods=['POST'])
 def classify():
     data = request.get_json()
     sentence = data.get('sentence', '')
+    url = data.get('url', '')
+    if url in cached_calls and 'classify_sentence' + sentence in cached_calls[url]:
+        return cached_calls[url]['classify_sentence' + sentence]
     if len(sentence.strip().split(' ')) < 5 or sentence is None:
         return jsonify({'score': 0,
                   'message': 'Success'})
     score = predict_sentence(sentence, glove_embeddings, threshold=0.8)
-    return jsonify({'score': score,
-                  'message': 'Success'})
+    response = jsonify({'score': score, 'message': 'Success'})
+    cached_calls[url] = {'classify_sentence' + sentence: response}
+    return response
 
 @bp.route('/bias_indicator', methods=['POST'])
 def bias_indicator():
     data = request.json
-    text = getTextFromUrl(data.get('url', ''))
+    url = data.get('url', '')
+    if url in cached_calls and 'bias_indicator' in cached_calls[url]:
+        return cached_calls[url]['bias_indicator']
+    text = getTextFromUrl(url)
     # split text into sentences
     sentences = text.split('.')
     total = 0
@@ -56,28 +76,46 @@ def bias_indicator():
         tot_words += len(sentence.split(' '))
     output = total / tot_words * 100
     if len(sentences) == 0:
-        return jsonify({'score': 0,
+        response = jsonify({'score': 0,
                   'message': 'Success'})
-    return jsonify({'score': output,
-                  'message': 'Success'})
+        cached_calls[url] = {'bias_indicator': response}
+        return response
+    response = jsonify({'score': output,
+                    'message': 'Success'})
+    cached_calls[url] = {'bias_indicator': response}
+    return response
 
 @bp.route('/classify_full_text', methods=['POST'])
 def classify_text():
     data = request.get_json()
+    url = data.get('url', '')
+    if url in cached_calls and 'classify_full_text' in cached_calls[url]:
+        return cached_calls[url]['classify_full_text']
     text = data.get('text', '')
-    return get_knn_class_text(text,glove_embeddings)
+    response = get_knn_class_text(text,glove_embeddings)
+    cached_calls[url] = {'classify_full_text': response}
+    return response
 
 @bp.route('/smog_full_text', methods=['POST'])
 def smog_text():
     data = request.get_json()
+    url = data.get('url', '')
+    if url in cached_calls and 'smog_full_text' in cached_calls[url]:
+        return cached_calls[url]['smog_full_text']
     text = data.get('text', '')
-    return get_nela_smog_text(text)
+    response = get_nela_smog_text(text)
+    cached_calls[url] = {'smog_full_text': response}
+    return response
 
 @bp.route('/allsides_rating', methods=['POST'])
 def allsides_text():
     data = request.get_json()
     url = data.get('url', '')
-    return get_allsides(url)
+    if url in cached_calls and 'allsides_rating' in cached_calls[url]:
+        return cached_calls[url]['allsides_rating']
+    response = get_allsides(url)
+    cached_calls[url] = {'allsides_rating': response}
+    return response
 
 def sentiment_json(doc_sentiment, sentence, sentence_score):
     return jsonify({'total_sentiment': doc_sentiment, 
