@@ -260,3 +260,25 @@ document.addEventListener("change", function (event) {
         // Add your logic here
     }
 });
+
+// Save state when the radio button is changed
+document.addEventListener("change", function (event) {
+    if (event.target.name === "global-option") {
+        chrome.storage.sync.set({ globalOption: event.target.value });
+    }
+});
+
+// Load the saved state when the popup is opened
+document.addEventListener("DOMContentLoaded", function () {
+    chrome.storage.sync.get("globalOption", function (data) {
+        const globalOption = data.globalOption;
+        if (globalOption) {
+            const radioButton = document.querySelector(
+                `input[name="global-option"][value="${globalOption}"]`
+            );
+            if (radioButton) {
+                radioButton.checked = true;
+            }
+        }
+    });
+});

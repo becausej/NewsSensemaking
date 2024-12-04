@@ -31,7 +31,7 @@ function highlightMaxSentimentSentence() {
                 return;
             }
             const color = data.max_sentence_score < 0 ? "cyan" : "yellow";
-            const highlightedSentence = `<span style="background-color: ${color};">${sentence}</span>`;
+            const highlightedSentence = `<span class="max-sentiment-highlight" style="background-color: ${color};">${sentence}</span>`;
             node.innerHTML = node.innerHTML.replace(
                 sentence,
                 highlightedSentence
@@ -118,6 +118,7 @@ async function styleSentences() {
                     const score = await getSentenceScore(sentence);
                     span.textContent = sentence + " ";
                     span.style.backgroundColor = getBackgroundColor(score);
+                    span.classList.add("sentence-style");
                     fragment.appendChild(span);
                 }
 
@@ -127,11 +128,74 @@ async function styleSentences() {
     }
 }
 
-// Initialize the script
-function init() {
-    // styleSentences();
-    //highlightMaxSentimentSentence();
+// Function to remove styled sentences
+function removeStyleSentences() {
+    console.log("Removing styled sentences...");
+    const styledSpans = document.querySelectorAll("span.sentence-style");
+    styledSpans.forEach((span) => {
+        const parent = span.parentNode;
+        // Replace the span with its text content
+        parent.replaceChild(document.createTextNode(span.textContent), span);
+        parent.normalize(); // Merge adjacent text nodes
+    });
+    console.log("Styled sentences removed.");
 }
+
+// Function to remove the highlighted max sentiment sentence
+function removeHighlightMaxSentimentSentence() {
+    console.log("Removing highlighted max sentiment sentence...");
+    const highlightedSpans = document.querySelectorAll("span.max-sentiment-highlight");
+    highlightedSpans.forEach((span) => {
+        const parent = span.parentNode;
+        // Replace the span with its text content
+        parent.replaceChild(document.createTextNode(span.textContent), span);
+        parent.normalize(); // Merge adjacent text nodes
+    });
+    console.log("Highlighted max sentiment sentence removed.");
+}
+
+
+// Function to get the current globalOption from chrome.storage.sync
+function getGlobalOption() {
+    return new Promise((resolve) => {
+        chrome.storage.sync.get("globalOption", (data) => {
+            resolve(data.globalOption);
+        });
+    });
+}
+
+// Initialize the script based on globalOption
+async function init() {
+    const globalOption = await getGlobalOption();
+    console.log("Initial globalOption:", globalOption);
+    executeBasedOnOption(globalOption);
+}
+
+// Execute functions based on the selected globalOption
+function executeBasedOnOption(option) {
+    console.log("Executing based on option:", option);
+    
+    // First, remove any previously applied styles
+    removeStyleSentences();
+    removeHighlightMaxSentimentSentence();
+
+    if (option === "bias-display") {
+        styleSentences();
+    } else if (option === "sentiment-display") {
+        highlightMaxSentimentSentence();
+    } else {
+        console.log("No valid globalOption selected.");
+    }
+}
+
+// Listen for changes to chrome.storage.sync and execute functions accordingly
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === "sync" && changes.globalOption) {
+        const newOption = changes.globalOption.newValue;
+        console.log("globalOption changed to:", newOption);
+        executeBasedOnOption(newOption);
+    }
+});
 
 // Run the init function when the DOM is ready
 if (document.readyState === "loading") {
