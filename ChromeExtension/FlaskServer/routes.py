@@ -35,9 +35,11 @@ def sentiment():
 def classify():
     data = request.get_json()
     sentence = data.get('sentence', '')
-    if sentence.strip() == '' or sentence is None:
-        return 0
-    return jsonify({'score': predict_sentence(sentence, glove_embeddings),
+    if len(sentence.strip().split(' ')) < 5 or sentence is None:
+        return jsonify({'score': 0,
+                  'message': 'Success'})
+    score = predict_sentence(sentence, glove_embeddings, threshold=0.8)
+    return jsonify({'score': score,
                   'message': 'Success'})
 
 @bp.route('/bias_indicator', methods=['POST'])
@@ -47,12 +49,16 @@ def bias_indicator():
     # split text into sentences
     sentences = text.split('.')
     total = 0
+    print("Starting bias indicator")
+    tot_words = 0
     for sentence in sentences:
-        total += predict_sentence(sentence, glove_embeddings)
+        total += predict_sentence(sentence, glove_embeddings, threshold=0.5) * len(sentence.split(' '))
+        tot_words += len(sentence.split(' '))
+    output = total / tot_words * 100
     if len(sentences) == 0:
         return jsonify({'score': 0,
                   'message': 'Success'})
-    return jsonify({'score': total / len(sentences) * 100,
+    return jsonify({'score': output,
                   'message': 'Success'})
 
 @bp.route('/classify_full_text', methods=['POST'])

@@ -8,7 +8,7 @@ from flask import jsonify
 nela = NELAFeatureExtractor()
 client = language_v2.LanguageServiceClient()
 model = pickle.load(open('backend_logic/model.pkl', 'rb'))
-opt_threshold = 0.37348342
+scaler = pickle.load(open('backend_logic/scaler.pkl', 'rb'))
 
 test_embeddings = [
     # Socioeconomic status
@@ -73,7 +73,10 @@ def analyze_sentiment(text):
 
 # Apply nela to a single sentence
 def find_nela_features(inp):
-    feature_vector, feature_names = nela.extract_all(str(inp))
+    style_vector, style_names = nela.extract_style(str(inp))
+    bias_vector, bias_names = nela.extract_bias(str(inp))
+    feature_vector = style_vector + bias_vector
+    feature_names = style_names + bias_names
     return feature_vector, feature_names
 
 def get_features(text, glove_embeddings):
@@ -84,31 +87,32 @@ def get_features(text, glove_embeddings):
     all_features = nela_features + embedding_features + sentiment_feature
     names = nela_names + embeddings_names + sentiment_name
     df = pd.DataFrame([all_features], columns=names)
-    dropped_features = ['allpunc', 'word_count', 'allcaps', 'EX', 'IN', 'JJR',
-                   'LS', 'NN', 'NNPS', 'PDT', 'POS', 'PRP', 'exclaim',
-                   'RB', 'RBR', 'RBS', 'SYM', 'TO', 'UH', 'WP$', 'WRB', 'VBD', 'VBG',
-                   'VBN', 'VBZ', 'WDT', 'WP', '$', "''", '(', ')', ',', '--', '.', ':',
-                   '``', 'lix', 'factives', 'hedges', 'implicatives', 'report_verbs',
-                   'negative_opinion_words', 'vadneg', 'vadneu', 'vadpos', 'wneg', 'wpos',
-                   'sneg', 'spos', 'HarmVice', 'FairnessVirtue', 'FairnessVice',
-                   'IngroupVirtue', 'IngroupVice', 'AuthorityVirtue', 'AuthorityVice',
-                   'PurityVirtue', 'PurityVice', 'MoralityGeneral', 'num_locations', 'num_dates']
     
-    df = df.drop(list(dropped_features), axis=1)
+    good_cols = [test_embedding['name'] for test_embedding in test_embeddings]
+    good_cols.append('sentiment')
+    good_cols.append('bias_words')
+    _, tmp = nela.extract_style('test')
+    not_tmp = ['quotes', 'exclaim', 'allpunc', 'allcaps', 'stops', 'WP$', '(', 'UH', 'SYM', 'RBR', '$', 'POS', ')', ',', "''", 'EX', '``', '--', 'LS', '.', ':', 'NNPS', 'FW', 'JJR', 'MD', 'RBS', 'VBG', 'PDT', 'RP', 'VBN', 'TO', 'PRP$', 'RB', 'PRP', 'VBZ', 'VBD', 'WDT', 'VB']
+    tmp = [t for t in tmp if t not in not_tmp]
+    good_cols += tmp
+    bad_columns = [col for col in df.columns if col not in good_cols]
+    
+    df = df.drop(list(bad_columns), axis=1)
     return df
 
-def predict_sentence(text, glove_embeddings):
+def predict_sentence(text, glove_embeddings, threshold=0.5):
     try:
         feature_vector = get_features(text, glove_embeddings)
+        feature_vector = scaler.transform(feature_vector)
         y = model.predict_proba(feature_vector)
         y = y[0][1]
-        # Do some transform on y using optimal threshold
+        # Do some transform on y using a threshold
         # Anything that is 1 should be reliable
         # Anything else is a range of unrealiability from 1 (unreliable) to 0 (reliable)
-        y = max(0, y - opt_threshold) / (1 - opt_threshold)
+        y = max(0, y - threshold) / (1 - threshold)
         return y
     except Exception as e:
-        print(e)
+        # print(e)
         return 0
     
 if __name__ == '__main__':
@@ -122,16 +126,5 @@ if __name__ == '__main__':
             glove_embeddings[word] = vector
     print("Glove embeddings loaded")
     
-    test_1 = "Jackie Mason: Hollywood Would Love Trump if He Bombed North Korea over Lack of Trans Bathrooms (Exclusive Video) - Breitbart"
-    # test_2 is test_1 but lowercased
-    test_2 = test_1.lower()
-    # run feature extraction on both then combine the tables and add a column for the sentence
-    features_1 = get_features(test_1, glove_embeddings)
-    features_2 = get_features(test_2, glove_embeddings)
-    combined_features = pd.concat([features_1, features_2], axis=0)
-    combined_features['sentence'] = [test_1, test_2]
-    # save csv to look at
-    combined_features.to_csv('combined_features.csv')
-    
+    test_1 = "The quick brown fox jumps over the lazy dog."
     print("Testing sentence 1", test_1, predict_sentence(test_1, glove_embeddings))
-    print("Testing sentence 2", test_2, predict_sentence(test_2, glove_embeddings))
