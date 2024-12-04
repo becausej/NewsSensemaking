@@ -15,7 +15,7 @@ def get_allsides(url):
         rows = [row for row in allsides_vals if website.lower()[:3] in row[0].lower() and website.lower()[:3] != 'the']
     if rows != []:
         rows.sort(key = lambda x: x[2],reverse=True)
-        return jsonify({'allsides_rating': dict[rows[0][1]], 'message': 'Success'})
+        return jsonify({'allsides_rating': dict[rows[0][1].strip()], 'message': 'Success'})
     distances = [jellyfish.jaro_similarity(website.lower(), x.lower()) for x in sources]
     loc = distances.index(max(distances))
     row = allsides_vals[loc]
