@@ -87,7 +87,11 @@ async function getSentiment() {
             if (document_sentiment) {
                 const formatted = (document_sentiment + 1) * 50;
                 setIndicator("sentiment-indicator", formatted);
-                return document_sentiment;
+            }
+            document_category = data.category;
+            console.log("category ", document_category);
+            if (document_category) {
+                document.getElementById("category-title").textContent = document_category;
             }
         })
         .catch((error) => console.error("Error:", error));
