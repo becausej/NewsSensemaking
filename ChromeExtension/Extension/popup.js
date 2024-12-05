@@ -62,6 +62,12 @@ function getFullTextFromPage() {
   }
   
 async function getSentiment() {
+    const current_text = await getFullTextFromPage();
+    console.log("found text for sentiment")
+    if (!current_text) {
+        console.log("ERROR GETTING TEXT")
+        return;
+    }
     const current_url = await getUrl();
     if (!current_url) {
         return;
@@ -72,7 +78,7 @@ async function getSentiment() {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: current_url }),
+        body: JSON.stringify({ text: current_text, url: current_url }),
     })
         .then((response) => response.json())
         .then((data) => {
@@ -212,6 +218,12 @@ function getTitle() {
 }
 
 async function getBiasIndicator() {
+    const current_text = await getFullTextFromPage();
+    console.log("found text for sentiment")
+    if (!current_text) {
+        console.log("ERROR GETTING TEXT")
+        return;
+    }
     const current_url = await getUrl();
     if (!current_url) {
         return;
@@ -222,7 +234,7 @@ async function getBiasIndicator() {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: current_url }),
+        body: JSON.stringify({ text: current_text, url: current_url }),
     })
         .then((response) => response.json())
         .then((data) => {

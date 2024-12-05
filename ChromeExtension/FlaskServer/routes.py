@@ -39,7 +39,7 @@ def sentiment():
     url = data.get('url', '')
     if url in cached_calls and 'get_analysis' in cached_calls[url]:
         return cached_calls[url]['get_analysis']
-    text = getTextFromUrl(url)
+    text = data.get('text', '')
     response = get_sentiment_values(text)
     cached_calls[url] = {'get_analysis': response}
     return response
@@ -65,7 +65,7 @@ def bias_indicator():
     url = data.get('url', '')
     if url in cached_calls and 'bias_indicator' in cached_calls[url]:
         return cached_calls[url]['bias_indicator']
-    text = getTextFromUrl(url)
+    text = data.get('text', '')
     # split text into sentences
     sentences = text.split('.')
     total = 0
