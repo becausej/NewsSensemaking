@@ -29,6 +29,51 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 });
 
+function highlightSentence(sentence) {
+    const body = document.body;
+    const range = document.createRange();
+    const selection = window.getSelection();
+
+    // Clear any existing selection
+    selection.removeAllRanges();
+
+    // Find the text in the document body
+    const textNode = findTextNode(body, sentence);
+    if (!textNode) {
+        console.error("Sentence not found in the document.");
+        return;
+    }
+
+    // Set the range to the found text
+    const startIndex = textNode.textContent.indexOf(sentence);
+    range.setStart(textNode, startIndex);
+    range.setEnd(textNode, startIndex + sentence.length);
+
+    // Wrap the range in a span element
+    const span = document.createElement("span");
+    span.className = "max-sentiment-highlight";
+    span.style.backgroundColor = "yellow"; // Or dynamically change the color
+    range.surroundContents(span);
+
+    console.log("Highlighted:", sentence);
+}
+
+// Helper function to find a text node containing the sentence
+function findTextNode(node, sentence) {
+    if (node.nodeType === Node.TEXT_NODE) {
+        if (node.textContent.includes(sentence)) {
+            return node;
+        }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+        for (const child of node.childNodes) {
+            const found = findTextNode(child, sentence);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+
 // Max sentiment sentence highlighting
 function highlightMaxSentimentSentence() {
     console.log("start");
@@ -58,12 +103,13 @@ function highlightMaxSentimentSentence() {
                 console.log("failed");
                 return;
             }
-            const color = data.max_sentence_score < 0 ? "cyan" : "yellow";
-            const highlightedSentence = `<span class="max-sentiment-highlight" style="background-color: ${color};">${sentence}</span>`;
-            node.innerHTML = node.innerHTML.replace(
-                sentence,
-                highlightedSentence
-            );
+            highlightSentence(sentence)
+            //const color = data.max_sentence_score < 0 ? "cyan" : "yellow";
+            //const highlightedSentence = `<span class="max-sentiment-highlight" style="background-color: ${color};">${sentence}</span>`;
+            // node.innerHTML = node.innerHTML.replace(
+            //    sentence,
+            //    highlightedSentence
+            //);
             console.log("should've worked");
         })
         .catch((error) => console.error("Error:", error));
