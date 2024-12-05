@@ -37,8 +37,12 @@ def get_max_sentence(text):
 
 def get_sentiment_values(text):
     data = analyze_sentiment(text)
-
+    category = classify_text(text)
+    if category.startswith("/"):
+        category = category[1:]
+    category = category.replace("/", ",")
     return jsonify({'total_sentiment': data.document_sentiment.score,
+                    'category': category,
                   'message': 'Success'})
 
 # Analyze sentiment for each entity
@@ -100,3 +104,25 @@ def help_combine_entities(all_entities):
             metadata: value[metadata]  
     }
     return entity_averages
+
+# classifies text based on Google's predefined categories
+def classify_text(text):
+    client = language_v1.LanguageServiceClient()
+    type_ = language_v1.Document.Type.PLAIN_TEXT
+    document = {"content": text, "type_": type_}
+
+    response = client.classify_text(
+        request={
+            "document": document,
+            "classification_model_options": {
+                "v2_model": {"content_categories_version": language_v1.ClassificationModelOptions.V2Model.ContentCategoriesVersion.V2}
+            },
+        }
+    )
+  
+    sorted_categories = sorted(
+        response.categories,
+        key=lambda entity: abs(entity.confidence),
+        reverse=True
+    )
+    return sorted_categories[0].name
