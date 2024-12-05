@@ -25,15 +25,22 @@ def get_max_sentence(text):
     if not sorted_sentiments:
         return jsonify({'message': 'Failed'})
     
-    max_sentences = sorted_sentiments[:3]
+    response = {}
+    unique_sentences = set()
+    keys = ['max_sentence', 'max_sentence_two', 'max_sentence_three']
 
-    return jsonify({'max_sentence': max_sentences[0].text.content,
-                  'max_sentence_score': max_sentences[0].sentiment.score,
-                  '2nd_sentence': max_sentences[1].text.content,
-                  '2nd_sentence_score': max_sentences[1].sentiment.score,
-                  '3rd_sentence': max_sentences[2].text.content,
-                  '3rd_sentence_score': max_sentences[2].sentiment.score,
-                  'message': 'Success'})
+    for sentence in sorted_sentiments:
+        if len(unique_sentences) >= 3:
+            break 
+        if sentence.text.content not in unique_sentences:
+            key_prefix = keys[len(unique_sentences)]
+            response[key_prefix] = sentence.text.content
+            response[f'{key_prefix}_score'] = sentence.sentiment.score
+            unique_sentences.add(sentence.text.content)
+
+    response['message'] = 'Success'
+
+    return jsonify(response)
 
 def get_sentiment_values(text):
     data = analyze_sentiment(text)

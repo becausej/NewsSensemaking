@@ -53,22 +53,36 @@ function highlightMaxSentimentSentence() {
         .then((response) => response.json())
         .then((data) => {
             console.log("sentence", data.max_sentence);
-            sentence = data.max_sentence;
 
-            node = findElement(document, sentence);
-            if (!node) {
-                console.log("failed");
-                return;
+            if (data.max_sentence){
+                highlight_sentence(data.max_sentence, data.max_sentence_score)
             }
-            const color = data.max_sentence_score < 0 ? "cyan" : "yellow";
-            const highlightedSentence = `<span class="max-sentiment-highlight" style="background-color: ${color};">${sentence}</span>`;
-            node.innerHTML = node.innerHTML.replace(
-                sentence,
-                highlightedSentence
-            );
+            if (data.max_sentence_two){
+                highlight_sentence(data.max_sentence_two, data.max_sentence_two_score)
+            }
+            if (data.max_sentence_three){
+                highlight_sentence(data.max_sentence_three, data.max_sentence_three_score)
+            }
             console.log("should've worked");
         })
         .catch((error) => console.error("Error:", error));
+}
+
+function highlight_sentence(sentence, score) {
+    node = findElement(document, sentence);
+    if (!node) {
+        console.log("failed");
+        return;
+    }
+    console.log(node);
+    console.log("sentence: ", sentence);
+    const color = score < 0 ? "cyan" : "yellow";
+    const highlightedSentence = `<span class="max-sentiment-highlight" style="background-color: ${color};">${sentence}</span>`;
+    node.innerHTML = node.innerHTML.replace(
+        sentence,
+        highlightedSentence
+    );
+    console.log("should've worked");
 }
 
 // bfs searches html for correct element node
@@ -223,6 +237,7 @@ function executeBasedOnOption(option) {
     if (option === "bias-display") {
         styleSentences();
     } else if (option === "sentiment-display") {
+        console.log("start sentiment display");
         highlightMaxSentimentSentence();
     } else {
         console.log("No valid globalOption selected.");
