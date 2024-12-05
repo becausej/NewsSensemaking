@@ -125,4 +125,6 @@ def classify_text(text):
         key=lambda entity: abs(entity.confidence),
         reverse=True
     )
+    if (len(sorted_categories) < 1):
+        return ""
     return sorted_categories[0].name
