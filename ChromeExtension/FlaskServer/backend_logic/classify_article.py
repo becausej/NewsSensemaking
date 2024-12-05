@@ -1,4 +1,3 @@
-import newspaper
 from nela_features.nela_features import NELAFeatureExtractor
 import pickle
 from flask import jsonify
@@ -58,9 +57,6 @@ def embedding_vector(text, glove_embeddings):
     embedding_features, embedding_names = find_embedding_features(text, glove_embeddings)
     return embedding_features
 
-def get_article_text(url):
-    return newspaper.article(url).text
-
 def get_knn_class_text(text,glove_embeddings):
     with open('backend_logic/knnfakenews.pkl', 'rb') as f:
         knn = pickle.load(f)
@@ -69,7 +65,3 @@ def get_knn_class_text(text,glove_embeddings):
     feature_vector = feature_vector + embedding_vector(text,glove_embeddings)
     vector = [[feature_vector[i] for i in [89, 92, 4, 59, 24]]]
     return jsonify({'class':"Reliable" if knn.predict(vector) == [1] else "Unreliable",'message':'Success'})
-
-def get_knn_class(url,glove_embeddings):
-    text = get_article_text(url)
-    return get_knn_class_text(text,glove_embeddings)

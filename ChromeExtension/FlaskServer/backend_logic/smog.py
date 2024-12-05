@@ -1,9 +1,5 @@
 from nela_features.nela_features import NELAFeatureExtractor
-import newspaper
 from flask import jsonify
-
-def get_article_text(url):
-    return newspaper.article(url).text
 
 def smog_to_text(smog):
     if smog >= 17:
@@ -22,8 +18,3 @@ def get_nela_smog_text(text):
     nela = NELAFeatureExtractor()
     complexity_vector, complexity_names = nela.extract_complexity(text)
     return jsonify({'smog_score': smog_to_text(complexity_vector[4]) + " Reading Level", 'message': 'Success'})
-
-
-def get_nela_smog(url):
-    text = get_article_text(url)
-    return get_nela_smog_text(text)

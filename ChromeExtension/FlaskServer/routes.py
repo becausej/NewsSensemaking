@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-import newspaper
 import numpy as np
 from backend_logic.google_sentiment import get_max_sentence, get_sentiment_values
 from backend_logic.analyze_sentence import predict_sentence
@@ -28,7 +27,7 @@ def max_sentence():
     url = data.get('url', '')
     if url in cached_calls and 'get_max_sentence' in cached_calls[url]:
         return cached_calls[url]['cached_calls']
-    text = getTextFromUrl(url)
+    text = data.get('text', '')
     response = get_max_sentence(text)
     cached_calls[url] = {'get_max_sentence': response}
     return response
@@ -122,7 +121,3 @@ def sentiment_json(doc_sentiment, sentence, sentence_score):
                   'max_sentence': sentence,
                   'max_sentence_score': sentence_score,
                   'message': 'Success'})
-
-def getTextFromUrl(url):
-    article = newspaper.article(url)
-    return article.text

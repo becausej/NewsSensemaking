@@ -1,3 +1,25 @@
+function extractMainTextBody() {
+    const selectors = [
+      'article',
+      'div[class*="content"]',
+      'div[class*="article"]',
+      'main',
+      'body'
+    ];
+
+    let textBody = '';
+
+    for (const selector of selectors) {
+      const element = document.querySelector(selector);
+      if (element) {
+        textBody = element.innerText.trim();
+        if (textBody) break;
+      }
+    }
+
+    return textBody || 'No main text content found on this page.';
+}
+
 // Sends popup the article title
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "getTitle") {
@@ -11,6 +33,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function highlightMaxSentimentSentence() {
     console.log("start");
     const current_url = window.location.toString();
+    const current_text = extractMainTextBody();
+    console.log("found text for maxsentiment")
+    if (!current_text) {
+        console.log("ERROR GETTING TEXT")
+        return;
+    }
     console.log("title", document.title);
 
     fetch("http://127.0.0.1:5000/get_max_sentence", {
@@ -18,7 +46,7 @@ function highlightMaxSentimentSentence() {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url: current_url }),
+        body: JSON.stringify({ text: current_text, url: current_url }),
     })
         .then((response) => response.json())
         .then((data) => {
