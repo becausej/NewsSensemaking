@@ -26,7 +26,7 @@ def max_sentence():
     data = request.json
     url = data.get('url', '')
     if url in cached_calls and 'get_max_sentence' in cached_calls[url]:
-        return cached_calls[url]['cached_calls']
+        return cached_calls[url]['get_max_sentence']
     text = data.get('text', '')
     response = get_max_sentence(text)
     cached_calls[url] = {'get_max_sentence': response}
