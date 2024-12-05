@@ -1,7 +1,7 @@
 // // set popup information
 document.addEventListener("DOMContentLoaded", async function () {
     // sentiment
-    //getTitle();
+    getTitle();
     getSentiment();
     getAllsides();
     getSmog();
@@ -189,6 +189,7 @@ function getUrl() {
 }
 
 function getTitle() {
+    console.log("start title");
     return new Promise((resolve, reject) => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             chrome.tabs.sendMessage(
