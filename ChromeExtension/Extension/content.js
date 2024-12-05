@@ -114,12 +114,23 @@ async function styleSentences() {
                 const fragment = document.createDocumentFragment();
 
                 for (const sentence of sentences) {
-                    const span = document.createElement("span");
-                    const score = await getSentenceScore(sentence);
-                    span.textContent = sentence + " ";
-                    span.style.backgroundColor = getBackgroundColor(score);
-                    span.classList.add("sentence-style");
-                    fragment.appendChild(span);
+                    if (sentence.split(" ").length > 5) {
+                        const span = document.createElement("span");
+                        const url = window.location.toString();
+                        const score = await getSentenceScore(sentence, url);
+                        span.textContent = sentence + " ";
+                        if (score > 0) {
+                            span.style.backgroundColor = getBackgroundColor(score);
+                        }
+                        span.classList.add("sentence-style");
+                        fragment.appendChild(span);
+                    }
+                    else {
+                        const span = document.createElement("span");
+                        span.textContent = sentence + " ";
+                        span.classList.add("sentence-style");
+                        fragment.appendChild(span);
+                    }
                 }
 
                 textNode.parentNode.replaceChild(fragment, textNode);

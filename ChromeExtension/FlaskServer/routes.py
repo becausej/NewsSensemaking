@@ -54,7 +54,7 @@ def classify():
     if len(sentence.strip().split(' ')) < 5 or sentence is None:
         return jsonify({'score': 0,
                   'message': 'Success'})
-    score = predict_sentence(sentence, glove_embeddings, threshold=0.8)
+    score = predict_sentence(sentence, glove_embeddings, threshold=0.85, single=True)
     response = jsonify({'score': score, 'message': 'Success'})
     cached_calls[url] = {'classify_sentence' + sentence: response}
     return response

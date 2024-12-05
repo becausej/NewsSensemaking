@@ -100,7 +100,7 @@ def get_features(text, glove_embeddings):
     df = df.drop(list(bad_columns), axis=1)
     return df
 
-def predict_sentence(text, glove_embeddings, threshold=0.5):
+def predict_sentence(text, glove_embeddings, threshold=0.5, single=False):
     try:
         feature_vector = get_features(text, glove_embeddings)
         feature_vector = scaler.transform(feature_vector)
@@ -109,12 +109,17 @@ def predict_sentence(text, glove_embeddings, threshold=0.5):
         # Do some transform on y using a threshold
         # Anything that is 1 should be reliable
         # Anything else is a range of unrealiability from 1 (unreliable) to 0 (reliable)
-        y = max(0, y - threshold) / (1 - threshold)
+        if single:
+            y = (max(0, y - threshold) / (1 - threshold)) / 1.5
+            if y != 0:
+                y += 0.2
+        else:
+            y = max(0, y - threshold) / (1 - threshold)
         return y
     except Exception as e:
         # print(e)
         return 0
-    
+
 if __name__ == '__main__':
     glove_embeddings = {}
     print("Loading glove embeddings")
