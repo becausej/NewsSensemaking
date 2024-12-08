@@ -33,6 +33,9 @@ def get_max_sentence(text):
         if len(unique_sentences) >= 3:
             break 
         if sentence.text.content not in unique_sentences:
+            words = sentence.text.content.count(" ")+1
+            if (words < 5):
+                continue
             key_prefix = keys[len(unique_sentences)]
             response[key_prefix] = sentence.text.content
             response[f'{key_prefix}_score'] = sentence.sentiment.score
